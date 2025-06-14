@@ -3,7 +3,7 @@ import random
 
 from enum import Enum
 
-# ======= MOCKOWANE KOMPONENTY Z ORYGINALNEGO KODU =======
+# Mockowane komponenty z oryginalnego kodu-komentarze w poszczególnych klasach
 
 class TimePeriod(Enum):
     MORNING = 1
@@ -134,36 +134,36 @@ class Maintenance:
                     vehicle.time_broken = 0
 
 
-# ======= TESTY =======
+# Testy
 
-class TestVehicleOperations(unittest.TestCase):
+class TestVehicleOperations(unittest.TestCase): # sprawdzanie, czy koszt operacyjny dla pojazdów jest poprawny oraz wszelakie warunku na przystankach, awarii
 
-    def test_bus_cost(self):
+    def test_bus_cost(self): # test dla autobusu-sprawdza koszt operacyjny
         route = Route(["A", "B"], 10, Traffic(3, TimePeriod.MORNING))
         driver = Driver("Kowalski", 2000)
         bus = Bus("B1", route, driver, fuel_consumption=0.4)
         self.assertEqual(bus.calculate_cost(), 0.4 * 10 + 2000)
 
-    def test_tram_cost(self):
+    def test_tram_cost(self): # test dla tramwaju-sprawdza koszt operacyjny
         route = Route(["A", "B", "C"], 8, Traffic(5, TimePeriod.EVENING))
         driver = Driver("Nowak", 2500)
         tram = Tram("T1", route, driver, electricity_consumption=0.5)
         self.assertEqual(tram.calculate_cost(), 0.5 * 8 + 2500)
 
-    def test_maintenance_breakdown(self):
+    def test_maintenance_breakdown(self): # Sprawdza test, czy mechanizm awarii działa z założeniami oraz ustawia warunki na nowo i sprawdza stan pojazdu
         route = Route(["A", "B"], 10, Traffic(2, TimePeriod.AFTERNOON))
         driver = Driver("Testowy", 2000)
         bus = Bus("B2", route, driver, fuel_consumption=0.3)
-        bus.condition = 1  # bardzo niska kondycja
+        bus.condition = 1  # zła kondycja
 
         maintenance = Maintenance(base_failure_chance_per_second=1.0)  # gwarantowana awaria
-        random.seed(0)  # deterministyczne
+        random.seed(0)  # powtarzalność testu
         maintenance.check_failure(bus, 1000)
 
         self.assertEqual(bus.state, "Broken")
         self.assertGreater(bus.breakdown_duration, 0)
 
-    def test_vehicle_stops_and_waits(self):
+    def test_vehicle_stops_and_waits(self): # sprawdza, czy dobrze zatrzymuje się na przystanku i liczy czas postoju
         route = Route(["A", "B"], 10, Traffic(0, TimePeriod.MORNING))
         driver = Driver("Test", 1000)
         bus = Bus("B3", route, driver, 0.2)
@@ -171,10 +171,10 @@ class TestVehicleOperations(unittest.TestCase):
         bus.stop_positions = [150, 250]
         bus.speed = 1.0
 
-        bus.update(dt=100, delay_factor=1.0, current_time=10)
-        self.assertEqual(bus.wait_timer, 5.0)  # postój
-        bus.update(dt=5000, delay_factor=1.0, current_time=15)  # czekamy
-        self.assertLessEqual(bus.wait_timer, 0)
+        bus.update(dt=100, delay_factor=1.0, current_time=10) # symulacja dojazdu
+        self.assertEqual(bus.wait_timer, 5.0)  # czy zaczął się postój?
+        bus.update(dt=5000, delay_factor=1.0, current_time=15)  # symulacja czasu postoju
+        self.assertLessEqual(bus.wait_timer, 0) # czy postój się zakończył?
 
 
 if __name__ == "__main__":
