@@ -23,6 +23,7 @@ jobs:
           pip install pygame  
           pip install -r requirements.txt || echo "Brak requirements.txt — pomijam"
 
-      - name: Uruchomienie testów
+      - name: Uruchomienie testów z pokryciem
         run: |
-          python -m unittest symulacja_mpk.tests
+          coverage run -m unittest symulacja_mpk.tests
+          coverage report -m
